@@ -1,0 +1,97 @@
+---
+title: "p8105_hw3_xh2395"
+author: "Xin  He"
+date: "10/12/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(p8105.datasets)
+data("instacart")
+library(ggridges)
+```
+
+## Problem 1
+**How many aisles are there?**
+```{r}
+instacart%>%
+  group_by(aisle) %>%
+  summarize(n_of_aisle = n())
+```
+There are 134 aisels.
+
+**Which aisles are the most items ordered from?**
+```{r}
+instacart%>%
+  group_by(aisle) %>%
+  summarize(n_of_aisle = n()) %>% 
+  filter(min_rank(desc(n_of_aisle)) < 2)
+```
+The most items are ordered from fresh vegetables. The items in fresh vegetables are ordered 150609 times.
+
+**Plot that shows the number of items ordered in each aisle**
+```{r}
+instacart%>%
+  group_by(aisle) %>%
+  summarize(n_of_aisle = n()) %>% 
+  filter(n_of_aisle > 10000) %>% 
+  ggplot(aes(x = aisle, y = n_of_aisle)) + 
+  geom_bar(stat="identity") +
+  theme(text = element_text(size=12),
+         axis.text.x = element_text(angle=90, vjust=0.5)) +
+  labs(
+    title = "Aisles plot",
+    x = "names of aisles",
+    y = "number of items ordered in each aisle",
+    caption = "Data from instacart")
+```
+In the plot, there are 39 aisles that are with more than 10000 items ordered. X asix is the names of different aisles. Y asix is the number of items ordered in each aisle,and 50000 is used as each break. 
+
+**Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”**
+```{r}
+instacart%>%
+  filter(aisle == c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>%
+  group_by(aisle, product_name) %>%
+  summarize(n_aisle_product = n()) %>% 
+  filter(min_rank(desc(n_aisle_product)) < 4) %>% 
+  knitr::kable(digits = 0)
+```
+
+As shown in the table, in the aisle “baking ingredients”, the three most popular items are "Light Brown Sugar", "Organic Vanilla Extract" and "Pure Baking Soda"; in the aisle “dog food care”, the three most popular items are "Organix Chicken & Brown Rice Recipe", "Organix Grain Free Chicken & Vegetable Dog Food" and "Original Dry Dog"; in the aisle “packaged vegetables fruits”, the three most popular items are "Organic Baby Spinach", "Organic Blueberries" and "Organic Raspberries".
+
+**Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week**
+```{r}
+instacart%>%
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>%
+  group_by(product_name,order_dow) %>%
+  summarize(mean_order_hour = mean(order_hour_of_day)) %>% 
+  pivot_wider(
+    names_from = order_dow,
+    values_from = mean_order_hour) %>% 
+  rename(Sunday = "0", Monday = "1", Tuesday = "2", Wednesday = "3", Thursday = "4", Friday = "5", Saturday = "6") %>% 
+  knitr::kable(digits = 1)
+```
+
+As shown in the table, the mean order hour of Coffee Ice Cream on Tuesday is the latest (15.4) and the mean order hour of Pink Lady Apples on Wednesday is the latest (14.2).
+
+The dataset "instacart", has `r nrow(instacart)` observations and `r ncol(instacart)` columns. Key variables include order_dow, order_hour_of_day, product_name and aisle.
+Ice cream is ordered later than apples.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
